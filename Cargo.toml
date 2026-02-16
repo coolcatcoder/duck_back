@@ -1,0 +1,14 @@
+[package]
+name = "duck_back"
+version = "1.0.0"
+edition = "2024"
+
+[dependencies]
+bevy = { version = "0.18", default-features = false, features = [
+    "bevy_log",
+] }
+
+[dev-dependencies]
+bevy = { version = "0.18", default-features = false, features = [
+    "debug"
+] }
