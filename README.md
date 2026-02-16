@@ -2,8 +2,8 @@
 ## Description:
 Allows for easy error handling in bevy.
 ## Warning: Darkness
-This crate requires nightly, as it uses [try_trait_v2](https://github.com/rust-lang/rust/issues/84277) to convert from results and options to `()` using the `?` operator.  
-It also uses [try_as_dyn](https://github.com/rust-lang/rust/issues/144361) in order to prefer `Display` to `Debug` implementations when displaying an error.  
+This crate requires nightly, as it uses [try_trait_v2](https://github.com/rust-lang/rust/issues/84277) to convert from results and options to `()` using the `?` operator.\
+It also uses [try_as_dyn](https://github.com/rust-lang/rust/issues/144361) in order to prefer `Display` to `Debug` implementations when displaying an error.\
 I have little doubt that eventually in some form these features will be stabilised.
 ## Example:
 ```rust
@@ -22,11 +22,11 @@ fn main() {
 
 fn start() {
     let bad: Option<u32> = None;
-    bad.else_return()?;
+    let _bad: u32 = bad.else_return()?;
 }
 
 fn query(transform: Query<&Transform>) {
-    transform.single().else_error()?;
+    let _transform: &Transform = transform.single().else_error()?;
 }
 ```
 ```

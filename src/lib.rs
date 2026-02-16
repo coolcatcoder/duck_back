@@ -1,5 +1,9 @@
+#![doc = include_str!("../README.md")]
 #![feature(try_trait_v2)]
 #![feature(try_as_dyn)]
+#![warn(clippy::pedantic)]
+#![warn(missing_docs)]
+
 use std::{
     any::{TypeId, try_as_dyn},
     convert::Infallible,
@@ -10,6 +14,9 @@ use std::{
 
 use bevy::log::{error, trace};
 
+/// A wrapper around [`Result<T, E>`].\
+/// The [`?`](core::ops::Try) operator can be used to reduce this into `()`.\
+/// ERROR controls whether it raises an error when it gets reduced.
 pub struct BevyResult<T, E, const ERROR: bool>(pub Result<T, E>);
 
 impl<T, E, const ERROR: bool> Try for BevyResult<T, E, ERROR> {
@@ -61,9 +68,13 @@ impl<E: 'static, const ERROR: bool> FromResidual<BevyResult<Infallible, E, ERROR
     }
 }
 
+/// An extension trait that allows converting options and results into [`BevyResult`].
 pub trait Else {
+    /// The [`BevyResult`] to be returned.
     type Output<const ERROR: bool>;
+    /// Will convert self to a [`BevyResult`] that will raise an error.
     fn else_error(self) -> Self::Output<true>;
+    /// Will convert self to a [`BevyResult`] that will not raise an error, but will still appear at the trace logging level.
     fn else_return(self) -> Self::Output<false>;
 }
 

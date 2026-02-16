@@ -13,9 +13,9 @@ fn main() {
 
 fn start() {
     let bad: Option<u32> = None;
-    bad.else_return()?;
+    let _bad: u32 = bad.else_return()?;
 }
 
 fn query(transform: Query<&Transform>) {
-    transform.single().else_error()?;
+    let _transform: &Transform = transform.single().else_error()?;
 }
