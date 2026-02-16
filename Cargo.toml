@@ -2,6 +2,11 @@
 name = "duck_back"
 version = "1.0.0"
 edition = "2024"
+description = "Options and results are water off a duck's back."
+license = "MIT OR Apache-2.0"
+keywords = ["bevy", "error_handling"]
+readme = "README.md"
+repository = "https://github.com/coolcatcoder/duck_back"
 
 [dependencies]
 bevy = { version = "0.18", default-features = false, features = [

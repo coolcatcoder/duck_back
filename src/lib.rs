@@ -3,8 +3,12 @@
 #![feature(try_as_dyn)]
 #![warn(clippy::pedantic)]
 #![warn(missing_docs)]
+#![no_std]
 
-use std::{
+extern crate alloc;
+use alloc::{format, string::String};
+
+use core::{
     any::{TypeId, try_as_dyn},
     convert::Infallible,
     fmt::{Debug, Display},
@@ -27,7 +31,7 @@ impl<T, E, const ERROR: bool> Try for BevyResult<T, E, ERROR> {
         BevyResult(Ok(output))
     }
 
-    fn branch(self) -> std::ops::ControlFlow<Self::Residual, Self::Output> {
+    fn branch(self) -> core::ops::ControlFlow<Self::Residual, Self::Output> {
         match self.0 {
             Ok(output) => ControlFlow::Continue(output),
             Err(error) => ControlFlow::Break(BevyResult(Err(error))),
