@@ -16,7 +16,7 @@ use core::{
     panic::Location,
 };
 
-use bevy::log::{error, trace};
+use tracing::{error, trace};
 
 /// A wrapper around [`Result<T, E>`].\
 /// The [`?`](core::ops::Try) operator can be used to reduce this into `()`.\
@@ -72,7 +72,8 @@ impl<E: 'static, const ERROR: bool> FromResidual<BevyResult<Infallible, E, ERROR
     }
 }
 
-/// An extension trait that allows converting options and results into [`BevyResult`].
+/// An extension trait that allows converting options and results into [`BevyResult`].\
+/// (It is actually implemented for any type that implements `Try`.)
 pub trait Else {
     /// The [`BevyResult`] to be returned.
     type Output<const ERROR: bool>;
@@ -82,24 +83,14 @@ pub trait Else {
     fn else_return(self) -> Self::Output<false>;
 }
 
-impl<T> Else for Option<T> {
-    type Output<const ERROR: bool> = BevyResult<T, (), ERROR>;
+impl<T: Try> Else for T {
+    type Output<const ERROR: bool> =
+        BevyResult<<Self as Try>::Output, <Self as Try>::Residual, ERROR>;
 
     fn else_error(self) -> Self::Output<true> {
-        BevyResult(self.ok_or(()))
+        BevyResult(self.branch().continue_ok())
     }
     fn else_return(self) -> Self::Output<false> {
-        BevyResult(self.ok_or(()))
-    }
-}
-
-impl<T, E> Else for Result<T, E> {
-    type Output<const ERROR: bool> = BevyResult<T, E, ERROR>;
-
-    fn else_error(self) -> Self::Output<true> {
-        BevyResult(self)
-    }
-    fn else_return(self) -> Self::Output<false> {
-        BevyResult(self)
+        BevyResult(self.branch().continue_ok())
     }
 }
