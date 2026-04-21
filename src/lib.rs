@@ -73,7 +73,7 @@ impl<E: 'static, const ERROR: bool> FromResidual<BevyResult<Infallible, E, ERROR
 }
 
 /// An extension trait that allows converting options and results into [`BevyResult`].\
-/// (It is actually implemented for any type that implements `Try`.)
+/// (It is actually implemented for any type that implements [`UnwrappedResidual`].)
 pub trait Else {
     /// The [`BevyResult`] to be returned.
     type Output<const ERROR: bool>;
@@ -83,14 +83,42 @@ pub trait Else {
     fn else_return(self) -> Self::Output<false>;
 }
 
-impl<T: Try> Else for T {
+/// An unfortunate trait.\
+/// The residual of `Result<T, E>` is `Result<!, E>`, and not `E`.\
+/// This trait removes the type wrapping from the residual.
+pub trait UnwrappedResidual: Try {
+    /// The residual of the type without wrapping.
+    type UnwrappedResidual;
+
+    /// Go from the wrapped residual to the unwrapped residual.
+    fn unwrap_residual(residual: Self::Residual) -> Self::UnwrappedResidual;
+}
+
+impl<T: UnwrappedResidual> Else for T {
     type Output<const ERROR: bool> =
-        BevyResult<<Self as Try>::Output, <Self as Try>::Residual, ERROR>;
+        BevyResult<<Self as Try>::Output, <Self as UnwrappedResidual>::UnwrappedResidual, ERROR>;
 
     fn else_error(self) -> Self::Output<true> {
-        BevyResult(self.branch().continue_ok())
+        BevyResult(self.branch().continue_ok().map_err(Self::unwrap_residual))
     }
     fn else_return(self) -> Self::Output<false> {
-        BevyResult(self.branch().continue_ok())
+        BevyResult(self.branch().continue_ok().map_err(Self::unwrap_residual))
+    }
+}
+
+impl<T> UnwrappedResidual for Option<T> {
+    type UnwrappedResidual = ();
+
+    fn unwrap_residual(residual: Self::Residual) -> Self::UnwrappedResidual {
+        let None = residual;
+    }
+}
+
+impl<T, E> UnwrappedResidual for Result<T, E> {
+    type UnwrappedResidual = E;
+
+    fn unwrap_residual(residual: Self::Residual) -> Self::UnwrappedResidual {
+        let Err(error) = residual;
+        error
     }
 }
