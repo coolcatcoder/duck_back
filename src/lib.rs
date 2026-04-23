@@ -21,6 +21,7 @@ use tracing::{error, trace};
 /// A wrapper around [`Result<T, E>`].\
 /// The [`?`](core::ops::Try) operator can be used to reduce this into `()`.\
 /// ERROR controls whether it raises an error when it gets reduced.
+#[must_use]
 pub struct BevyResult<T, E, const ERROR: bool>(pub Result<T, E>);
 
 impl<T, E, const ERROR: bool> Try for BevyResult<T, E, ERROR> {
