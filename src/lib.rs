@@ -1,5 +1,6 @@
 #![doc = include_str!("../README.md")]
 #![feature(try_trait_v2)]
+#![feature(try_trait_v2_residual)]
 #![feature(try_as_dyn)]
 #![warn(clippy::pedantic)]
 #![warn(missing_docs)]
@@ -12,7 +13,7 @@ use core::{
     any::{TypeId, try_as_dyn},
     convert::Infallible,
     fmt::{Debug, Display},
-    ops::{ControlFlow, FromResidual, Try},
+    ops::{ControlFlow, FromResidual, Residual, Try},
     panic::Location,
 };
 
@@ -38,6 +39,10 @@ impl<T, E, const ERROR: bool> Try for BevyResult<T, E, ERROR> {
             Err(error) => ControlFlow::Break(BevyResult(Err(error))),
         }
     }
+}
+
+impl<T, E, const ERROR: bool> Residual<T> for BevyResult<Infallible, E, ERROR> {
+    type TryType = BevyResult<T, E, ERROR>;
 }
 
 impl<T, E, const ERROR: bool> FromResidual for BevyResult<T, E, ERROR> {
