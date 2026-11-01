@@ -36,3 +36,21 @@ No entities fit the query bevy_ecs::system::query::Query<'_, '_, &bevy_transform
 2026-02-16T05:05:12.958934Z TRACE duck_back: (examples/messages.rs:16:5)
 Failed to unwrap value.
 ```
+
+## License
+
+Licensed under either of
+
+ * Apache License, Version 2.0
+   ([LICENSE-APACHE](LICENSE-APACHE) or <http://www.apache.org/licenses/LICENSE-2.0>)
+ * MIT license
+   ([LICENSE-MIT](LICENSE-MIT) or <http://opensource.org/licenses/MIT>)
+
+at your option.
+
+## Contribution
+
+Unless you explicitly state otherwise, any contribution intentionally submitted
+for inclusion in the work by you, as defined in the Apache-2.0 license, shall be
+dual licensed as above, without any additional terms or conditions.
+
