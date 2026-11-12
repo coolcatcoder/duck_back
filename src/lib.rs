@@ -10,7 +10,7 @@ extern crate alloc;
 use alloc::{format, string::String};
 
 use core::{
-    any::{TypeId, try_as_dyn},
+    any::try_as_dyn,
     convert::Infallible,
     fmt::{Debug, Display},
     ops::{ControlFlow, FromResidual, Residual, Try},
