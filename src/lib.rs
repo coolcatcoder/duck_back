@@ -52,21 +52,21 @@ impl<T, E, const ERROR: bool> FromResidual for BevyResult<T, E, ERROR> {
     }
 }
 
-// We might be able to remove the static bound if try_as_dyn ever stops requiring it.
-impl<E: 'static, const ERROR: bool> FromResidual<BevyResult<Infallible, E, ERROR>> for () {
+impl<E, const ERROR: bool> FromResidual<BevyResult<Infallible, E, ERROR>> for () {
     #[track_caller]
     fn from_residual(result: BevyResult<Infallible, E, ERROR>) {
         let Err(error) = result.0;
 
-        let end = if TypeId::of::<E>() == TypeId::of::<()>() {
-            String::new()
-        } else if let Some(error) = try_as_dyn::<_, dyn Display>(&error) {
+        let mut end = if let Some(error) = try_as_dyn::<_, dyn Display>(&error) {
             format!("\n{error}")
         } else if let Some(error) = try_as_dyn::<_, dyn Debug>(&error) {
             format!("\n{error:#?}")
         } else {
             String::new()
         };
+        if end == "\n()" {
+            end = String::new();
+        }
 
         let message = format!("({})\nFailed to unwrap value.{end}", Location::caller());
 
