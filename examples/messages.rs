@@ -11,8 +11,13 @@ fn main() {
         .run();
 }
 
+fn option() -> Option<u32> {
+    None::<f32>.else_return()?;
+    Some(0)
+}
+
 fn start() {
-    let bad: Option<u32> = None;
+    let bad = option();
     let _bad: u32 = bad.else_return()?;
 }
 

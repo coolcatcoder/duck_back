@@ -52,29 +52,40 @@ impl<T, E, const ERROR: bool> FromResidual for BevyResult<T, E, ERROR> {
     }
 }
 
+#[track_caller]
+fn from_residual<E, const ERROR: bool>(result: BevyResult<Infallible, E, ERROR>) {
+    let Err(error) = result.0;
+
+    let mut end = if let Some(error) = try_as_dyn::<_, dyn Display>(&error) {
+        format!("\n{error}")
+    } else if let Some(error) = try_as_dyn::<_, dyn Debug>(&error) {
+        format!("\n{error:#?}")
+    } else {
+        String::new()
+    };
+    if end == "\n()" {
+        end = String::new();
+    }
+
+    let message = format!("({})\nFailed to unwrap value.{end}", Location::caller());
+
+    if ERROR {
+        error!("{message}");
+    } else {
+        trace!("{message}");
+    }
+}
 impl<E, const ERROR: bool> FromResidual<BevyResult<Infallible, E, ERROR>> for () {
     #[track_caller]
     fn from_residual(result: BevyResult<Infallible, E, ERROR>) {
-        let Err(error) = result.0;
-
-        let mut end = if let Some(error) = try_as_dyn::<_, dyn Display>(&error) {
-            format!("\n{error}")
-        } else if let Some(error) = try_as_dyn::<_, dyn Debug>(&error) {
-            format!("\n{error:#?}")
-        } else {
-            String::new()
-        };
-        if end == "\n()" {
-            end = String::new();
-        }
-
-        let message = format!("({})\nFailed to unwrap value.{end}", Location::caller());
-
-        if ERROR {
-            error!("{message}");
-        } else {
-            trace!("{message}");
-        }
+        from_residual(result);
+    }
+}
+impl<T, E, const ERROR: bool> FromResidual<BevyResult<Infallible, E, ERROR>> for Option<T> {
+    #[track_caller]
+    fn from_residual(result: BevyResult<Infallible, E, ERROR>) -> Option<T> {
+        from_residual(result);
+        None
     }
 }
 
